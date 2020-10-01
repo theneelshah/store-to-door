@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
 
-const userSchema = mongoose.Schema({
+const vendorSchema = mongoose.Schema({
   username: {
     type: String,
     required: [true, "Username is required"],
@@ -31,10 +31,18 @@ const userSchema = mongoose.Schema({
       message: "Passwords are different",
     },
   },
+  vendorType: {
+    type: String,
+    required: [true, "A vendor must have a type"],
+    enum: {
+      values: ["grocery", "tiffin", "hawker"],
+      message: "Possible values for vendor type: grocery, tiffin, hawker",
+    },
+  },
   passwordChanged: Date,
 });
 
-userSchema.pre("save", async function (next) {
+vendorSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
 
   this.password = await bcrypt.hash(this.password, 12);
@@ -42,7 +50,7 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-userSchema.methods.correctPassword = async function (
+vendorSchema.methods.correctPassword = async function (
   enteredPassword,
   userPassword
 ) {
@@ -50,7 +58,7 @@ userSchema.methods.correctPassword = async function (
   return await bcrypt.compare(enteredPassword, userPassword);
 };
 
-userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+vendorSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   if (this.passwordChanged) {
     const changedTimestamp = parseInt(
       this.passwordChanged.getTime() / 1000,
@@ -63,5 +71,5 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   return false;
 };
 
-const User = mongoose.model("User", userSchema);
-module.exports = User;
+const Vendor = mongoose.model("Vendor", vendorSchema);
+module.exports = Vendor;
