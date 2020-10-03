@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
+const itemSchema = require("./schemas/itemSchema");
 
 const vendorSchema = mongoose.Schema({
   username: {
@@ -39,6 +40,7 @@ const vendorSchema = mongoose.Schema({
       message: "Possible values for vendor type: grocery, tiffin, hawker",
     },
   },
+  items: [itemSchema],
   passwordChanged: Date,
 });
 

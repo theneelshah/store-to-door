@@ -18,6 +18,7 @@ exports.getUsers = catchAsync(async (req, res, next) => {
 exports.getUser = catchAsync(async (req, res, next) => {
   const { uid } = req.params;
   const user = await User.findById(uid);
+  console.log(user);
   if (!user)
     return res
       .status(404)
