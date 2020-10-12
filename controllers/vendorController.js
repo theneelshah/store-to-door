@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const { findByIdAndUpdate } = require("../models/vendorModel");
 const Vendor = require("../models/vendorModel");
 const catchAsync = require("../utils/catchAsync");
 
@@ -51,17 +50,35 @@ exports.addItems = catchAsync(async (req, res, next) => {
 });
 
 exports.getVendors = catchAsync(async (req, res, next) => {
-  const vendors = await Vendor.find({});
-  if (vendors.length > 0) {
-    return res.status(201).json({
+  const { lat, lng } = req.query;
+  if (!lat || !lng)
+    return res.status(401).json({
+      status: "Failed",
+      message: "Please enter both: latitude and longitude",
+    });
+
+  const vendors = await Vendor.find({
+    geometry: {
+      $near: {
+        $maxDistance: 1000,
+        $geometry: {
+          type: "Point",
+          coordinates: [lat, lng],
+        },
+      },
+    },
+  });
+  if (vendors.length > 0)
+    return res.status(200).json({
       status: "OK",
-      message: "Vendors Found",
-      totalUsers: vendors.length,
+      message: `Found vendors near {${lat}, ${lng}}`,
+      totalVendors: vendors.length,
       vendors,
     });
-  } else {
-    res.status(404).json({ status: "Failed", message: "No Vendors Present" });
-  }
+
+  res
+    .status(404)
+    .json({ status: "Failed", message: "Not found any vendors near you" });
 });
 
 exports.getVendor = catchAsync(async (req, res, next) => {
@@ -163,12 +180,22 @@ exports.getItems = catchAsync(async (req, res, next) => {
       .status(404)
       .json({ status: "Failed", message: "Not found with given ID" });
 
-  res
-    .status(200)
-    .json({
-      status: "OK",
-      message: "Items found",
-      totalItems: vendor.items.length,
-      items: vendor.items,
-    });
+  res.status(200).json({
+    status: "OK",
+    message: "Items found",
+    totalItems: vendor.items.length,
+    items: vendor.items,
+  });
+});
+
+exports.getOrders = catchAsync(async (req, res, next) => {
+  const { vendor } = req;
+  const { activeOrders, completedOrders } = vendor;
+
+  res.status(200).json({
+    status: "OK",
+    message: "Orders Found",
+    activeOrders,
+    completedOrders,
+  });
 });

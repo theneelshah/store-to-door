@@ -2,11 +2,7 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
 
-const itemSchema = require("./schemas/itemSchema");
-const geoSchema = require("./schemas/geoSchema");
-const orderSchema = require("./schemas/orderSchema");
-
-const vendorSchema = mongoose.Schema({
+const deliverySchema = mongoose.Schema({
   username: {
     type: String,
     required: [true, "Username is required"],
@@ -35,24 +31,9 @@ const vendorSchema = mongoose.Schema({
       message: "Passwords are different",
     },
   },
-  vendorType: {
-    type: String,
-    required: [true, "A vendor must have a type"],
-    enum: {
-      values: ["grocery", "tiffin", "hawker"],
-      message: "Possible values for vendor type: grocery, tiffin, hawker",
-    },
-  },
-  geometry: geoSchema,
-  items: [itemSchema],
-  activeOrders: [orderSchema],
-  completedOrders: [orderSchema],
-  passwordChanged: Date,
 });
 
-vendorSchema.index({ geometry: "2dsphere" });
-
-vendorSchema.pre("save", async function (next) {
+deliverySchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
 
   this.password = await bcrypt.hash(this.password, 12);
@@ -60,7 +41,7 @@ vendorSchema.pre("save", async function (next) {
   next();
 });
 
-vendorSchema.methods.correctPassword = async function (
+deliverySchema.methods.correctPassword = async function (
   enteredPassword,
   userPassword
 ) {
@@ -68,7 +49,7 @@ vendorSchema.methods.correctPassword = async function (
   return await bcrypt.compare(enteredPassword, userPassword);
 };
 
-vendorSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+deliverySchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   if (this.passwordChanged) {
     const changedTimestamp = parseInt(
       this.passwordChanged.getTime() / 1000,
@@ -81,5 +62,5 @@ vendorSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   return false;
 };
 
-const Vendor = mongoose.model("Vendor", vendorSchema);
-module.exports = Vendor;
+const DeliveryPerson = mongoose.model("deliveryPerson", deliverySchema);
+module.exports = DeliveryPerson;

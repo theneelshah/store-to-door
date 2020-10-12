@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
 
+const orderSchema = require("./schemas/orderSchema");
+
 const userSchema = mongoose.Schema({
   username: {
     type: String,
@@ -31,6 +33,8 @@ const userSchema = mongoose.Schema({
       message: "Passwords are different",
     },
   },
+  activeOrders: [orderSchema],
+  completedOrders: [orderSchema],
   passwordChanged: Date,
 });
 

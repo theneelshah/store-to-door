@@ -12,6 +12,7 @@ const {
   updateItems,
   deleteItem,
   getItems,
+  getOrders,
 } = require("../controllers/vendorController");
 
 const vendorRouter = express.Router();
@@ -19,6 +20,7 @@ const vendorRouter = express.Router();
 vendorRouter.post("/signup", signupVendor);
 vendorRouter.post("/login", loginVendor);
 
+vendorRouter.route("/orders").get(protectVendor, getOrders);
 vendorRouter.route("/").get(getVendors);
 vendorRouter.route("/:vid").put(protectVendor, addItems).get(getVendor);
 vendorRouter.route("/:vid/item").get(getItems);

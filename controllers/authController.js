@@ -1,9 +1,13 @@
 const { promisify } = require("util");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+
+const catchAsync = require("../utils/catchAsync");
+
 const User = require("../models/userModel");
 const Vendor = require("../models/vendorModel");
-const catchAsync = require("../utils/catchAsync");
+const DeliveryPerson = require("../models/deliveryModel");
+
 const AppError = require("../utils/AppError");
 
 const signToken = (id) => {
@@ -97,12 +101,20 @@ exports.protect = catchAsync(async (req, res, next) => {
       )
     );
   }
-
+  req.user = freshUser;
   next();
 });
 
 exports.signupVendor = catchAsync(async (req, res, next) => {
-  const { username, password, email, confirmPassword, vendorType } = req.body;
+  const {
+    username,
+    password,
+    email,
+    confirmPassword,
+    vendorType,
+    lat,
+    lng,
+  } = req.body;
   if ((!username, !email, !password, !confirmPassword, !vendorType)) {
     return res
       .status(400)
@@ -115,6 +127,7 @@ exports.signupVendor = catchAsync(async (req, res, next) => {
     password,
     confirmPassword,
     vendorType,
+    geometry: { type: "Point", coordinates: [lat, lng] },
   });
 
   const token = signToken(newVendor._id);
@@ -128,6 +141,7 @@ exports.signupVendor = catchAsync(async (req, res, next) => {
       username: newVendor.username,
       email: newVendor.email,
       vendorType: newVendor.vendorType,
+      geometry: newVendor.geometry,
     },
   });
 });
@@ -168,7 +182,6 @@ exports.protectVendor = catchAsync(async (req, res, next) => {
       new AppError("You are not logged in! Please login to continue.", 401)
     );
   }
-
   // 2) Verifying the token
   const decode = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
   // 3) Checking if the user still exists
@@ -190,6 +203,94 @@ exports.protectVendor = catchAsync(async (req, res, next) => {
       )
     );
   }
+  req.vendor = freshVendor;
+  next();
+});
 
+exports.signupDeliveryPerson = catchAsync(async (req, res, next) => {
+  const { username, email, password, confirmPassword } = req.body;
+  if ((!username, !email, !password, !confirmPassword)) {
+    return res
+      .status(400)
+      .json({ status: "Failed", message: "Please enter all the fields" });
+  }
+
+  const newUser = await DeliveryPerson.create({
+    username,
+    email,
+    password,
+    confirmPassword,
+  });
+  const token = signToken(newUser._id);
+  res.status(200).json({
+    status: "OK",
+    message: "Created New Delivery Person",
+    token,
+    user: {
+      _id: newUser._id,
+      username: newUser.username,
+      email: newUser.email,
+    },
+  });
+});
+
+exports.loginDeliveryPerson = catchAsync(async (req, res, next) => {
+  const { email, password } = req.body;
+  const savedUser = await DeliveryPerson.findOne({ email });
+  console.log(savedUser);
+
+  if (!savedUser)
+    return res
+      .status(401)
+      .json({ status: "Failed", message: "Invalid user or password" });
+
+  const present = await bcrypt.compare(password, savedUser.password);
+
+  if (!present)
+    return res
+      .status(401)
+      .json({ status: "Failed", message: "Invalid user or password" });
+
+  const token = await signToken(savedUser._id);
+
+  return res
+    .status(200)
+    .json({ status: "OK", message: "Logged in!", token, user: savedUser });
+});
+
+exports.protectDeliveryPerson = catchAsync(async (req, res, next) => {
+  const { authorization } = req.headers;
+  let token;
+  if (authorization && authorization.startsWith("bearer")) {
+    token = authorization.split(" ")[1];
+  }
+  if (!token) {
+    return next(
+      new AppError("You are not logged in! Please login to continue.", 401)
+    );
+  }
+
+  // 2) Verifying the token
+  const decode = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  // 3) Checking if the user still exists
+
+  const freshUser = await DeliveryPerson.findById(decode.id);
+  if (!freshUser) {
+    return next(
+      new AppError("The user belonging to the token doesn't exist", 401)
+    );
+  }
+
+  // 4) Check if user changed the password after the token was issued
+
+  if (freshUser.changedPasswordAfter(decode.iat)) {
+    return next(
+      new AppError(
+        "User has recently changed password! Please login again to continue",
+        401
+      )
+    );
+  }
+  req.user = freshUser;
   next();
 });
