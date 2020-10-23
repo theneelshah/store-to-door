@@ -19,7 +19,7 @@ mongoose
     console.log("Database connected successfully");
   });
 
-const server = app.listen(PORT, "127.0.0.1", () => {
+const server = app.listen(PORT, () => {
   console.log(`Server running: Listining on port ${PORT}`);
 });
 
