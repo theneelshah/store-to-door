@@ -43,9 +43,18 @@ export default class UserLoginPage extends Component {
     });
   };
 
-  onSubmit = () => {
+  onSubmit = async () => {
     const { email, password } = this.state;
-    loginUser(email, password);
+    ToastAndroid.show("Loading", ToastAndroid.LONG);
+    const response = await loginUser(email, password);
+    const { data, status } = response;
+    if (status === 200) {
+      this.props.navigation.navigate("App");
+      ToastAndroid.show(data.message, ToastAndroid.LONG);
+    } else {
+      console.log(data);
+      ToastAndroid.show(data.message, ToastAndroid.LONG);
+    }
   };
 
   onLoginPress = () => {

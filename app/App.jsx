@@ -1,20 +1,14 @@
-import { createAppContainer } from "react-navigation";
-import { createStackNavigator } from "react-navigation-stack";
-import ServitorLoginPage from "./screens/Auth/ServitorLoginPage";
-import UserLoginPage from "./screens/Auth/UserLoginPage";
-import HomePage from "./screens/HomePage";
+import React from "react";
+import { Provider } from "react-redux";
+import App from "./routes";
+import configureStore from "./store";
 
-const App = createStackNavigator({
-  Home: {
-    screen: HomePage,
-  },
-  UserLogin: {
-    screen: UserLoginPage,
-  },
+const store = configureStore();
 
-  ServitorLogin: {
-    screen: ServitorLoginPage,
-  },
-});
+const ParentApp = () => (
+  <Provider store={store}>
+    <App />
+  </Provider>
+);
 
-export default createAppContainer(App);
+export default ParentApp;

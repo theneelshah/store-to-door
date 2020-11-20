@@ -1,8 +1,19 @@
 import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  AsyncStorage,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default class HomePage extends React.Component {
+  async componentDidMount() {
+    const type = await AsyncStorage.getItem("type");
+    if (type === "customer") this.props.navigation.navigate("secured");
+  }
+
   onUserPress = () => {
     console.log("Pressed");
     this.props.navigation.navigate("UserLogin");
