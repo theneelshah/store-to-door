@@ -15,6 +15,7 @@ const activeReducer = (state = initialState, action) => {
           item: action.item,
           user: action.user,
           vendor: action.vendor,
+          detail: action.detail,
         }),
       };
 

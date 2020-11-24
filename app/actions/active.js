@@ -8,6 +8,7 @@ export const placeActive = (food) => {
     item: food.item,
     user: food.user,
     vendor: food.vendor,
+    detail: food.detail,
   };
 };
 
