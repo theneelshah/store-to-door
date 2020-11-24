@@ -6,6 +6,7 @@ import ServitorLoginPage from "./screens/Auth/ServitorLoginPage";
 import UserLoginPage from "./screens/Auth/UserLoginPage";
 import Cart from "./screens/Cart";
 import HomePage from "./screens/HomePage";
+import Orders from "./screens/Orders";
 import Secured from "./screens/secured";
 import Vendor from "./screens/vendor";
 
@@ -33,6 +34,12 @@ const App = createStackNavigator({
     screen: Cart,
     navigationOptions: {
       headerTitle: () => <Header title="Cart" />,
+    },
+  },
+  orders: {
+    screen: Orders,
+    navigationOptions: {
+      headerTitle: () => <Header title="Orders" />,
     },
   },
   vendor: {

@@ -29,6 +29,13 @@ exports.getUser = catchAsync(async (req, res, next) => {
   res.status(200).json({ status: "OK", message: "User Found", user });
 });
 
+const getItems = async (item) => {
+  const matchedVendor = await Vendor.find({ "items._id": item });
+  const orderedItem = matchedVendor[0].items.find((el) => el._id == item);
+
+  return orderedItem;
+};
+
 const matchItemToVendor = async (item) => {
   const matchedVendor = await Vendor.find({ "items._id": item });
   const orderedItem = matchedVendor[0].items.find((el) => el._id == item);
@@ -95,13 +102,43 @@ exports.getOrders = catchAsync(async (req, res, next) => {
       orders: completedOrders,
     });
   }
-  const { activeOrders } = currentUser;
+  const { activeOrders, completedOrders } = currentUser;
+
+  let orders = [];
+
+  for (let i = 0; i < activeOrders.length; i += 1) {
+    const fullItem = await getItems(`${activeOrders[i].item}`);
+    const {
+      timestamp,
+      quantity,
+      status,
+      _id,
+      vendor,
+      item,
+      user,
+    } = activeOrders[i];
+
+    orders.push({
+      timestamp,
+      quantity,
+      status,
+      item,
+      _id,
+      vendor,
+      user,
+      detail: fullItem,
+    });
+  }
+
   if (activeOrders.length === 0)
     return res.status(404).json({
       status: "Failed",
       message: "There are no active orders currently",
     });
-  res
-    .status(200)
-    .json({ status: "OK", message: "Active Orders", orders: activeOrders });
+  res.status(200).json({
+    status: "OK",
+    message: "Active Orders",
+    activeOrders: orders,
+    completedOrders,
+  });
 });

@@ -53,6 +53,7 @@ class Vendor extends Component {
     // const { items } = vendor;
     const { _id, items } = vendor;
     const { add, foods } = this.props;
+    // console.log(this.props);
 
     return (
       <SafeAreaView>
@@ -89,6 +90,7 @@ const mapStateToProps = (state) => {
   // console.log(state);
   return {
     foods: state.foodReducer.foodList,
+    active: state.activeReducer.activeList,
   };
 };
 

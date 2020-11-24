@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const itemSchema = require("./itemSchema");
 
 const orderSchema = mongoose.Schema({
   timestamp: {
