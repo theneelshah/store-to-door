@@ -277,3 +277,66 @@ exports.getOrders = catchAsync(async (req, res, next) => {
     completedOrders,
   });
 });
+
+exports.changeStatus = catchAsync(async (req, res, next) => {
+  const { vendor, body } = req;
+  const vendorId = vendor._id;
+  let vendorActiveOrders = vendor.activeOrders;
+
+  const { itemId, user, vendorActiveId } = body;
+  const { _id, userActiveId } = user;
+
+  const userCurrent = await User.findById(_id);
+
+  if (!itemId || !vendorActiveId || !_id || !userActiveId)
+    return res
+      .status(400)
+      .json({ status: "Failed", message: "Please Enter all the fields" });
+
+  for (let i = 0; i < vendorActiveOrders.length; i += 1) {
+    if (`${vendorActiveOrders[i]._id}` === `${vendorActiveId}`) {
+      vendorActiveOrders[i].status = "Accepted";
+      break;
+    }
+  }
+
+  const vendorUpdated = await Vendor.findByIdAndUpdate(
+    { _id: vendorId },
+    { $set: { activeOrders: vendorActiveOrders } },
+    { new: true, runValidators: true }
+  );
+
+  const userActiveOrders = userCurrent.activeOrders;
+  for (let i = 0; i < userActiveOrders.length; i += 1) {
+    if (`${userActiveOrders[i]._id}` === `${userActiveId}`) {
+      userActiveOrders[i].status = "Accepted";
+      break;
+    }
+  }
+
+  const userUpdated = await User.findByIdAndUpdate(
+    { _id },
+    { $set: { activeOrders: userActiveOrders } },
+    { new: true, runValidators: true }
+  );
+
+  res.status(200).json({
+    status: "Ok",
+    message: "Status changed to Accepted",
+    vendor: vendorUpdated,
+    user: {
+      _id: userUpdated._id,
+      username: userUpdated.username,
+      email: userUpdated.email,
+      phone: userUpdated.phone,
+      activeOrders: userUpdated.activeOrders,
+      completedOrders: userUpdated.completedOrders,
+    },
+  });
+
+  // const result = vendorActiveOrders.filter((el) => el.status === "Accepted");
+  // vendorActiveOrders.splice(toRemove, 1);
+  // console.log(result);
+  // console.log("---------");
+  // console.log(vendorActiveOrders);
+});
