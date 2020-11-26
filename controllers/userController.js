@@ -69,6 +69,13 @@ exports.createOrder = catchAsync(async (req, res, next) => {
     console.log(vendorOrderUpdated);
   }
 
+  const userCurrentOrder = await User.findById(_id);
+  const activeUserOrder = userCurrentOrder.activeOrders;
+
+  for (let i = 0; i < activeUserOrder.length; i += 1) {
+    allOrders.push(activeUserOrder[i]);
+  }
+
   const userOrderPlaced = await User.findByIdAndUpdate(
     { _id },
     { $set: { activeOrders: allOrders } },
