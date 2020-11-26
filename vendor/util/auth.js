@@ -64,7 +64,7 @@ exports.login = async (email, password) => {
     await AsyncStorage.setItem("id", _id);
     await AsyncStorage.setItem("username", username);
     await AsyncStorage.setItem("email", email);
-    await AsyncStorage.setItem("type", "customer");
+    await AsyncStorage.setItem("type", "vendor");
     return { data, status };
   } catch (error) {
     console.log(error);

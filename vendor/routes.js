@@ -1,5 +1,7 @@
+import React from "react";
 import { createAppContainer, createSwitchNavigator } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
+import Header from "./components/header";
 import Login from "./screens/Auth/Login";
 import Signup from "./screens/Auth/Signup";
 import HomePage from "./screens/HomePage";
@@ -22,6 +24,9 @@ const Auth = createStackNavigator({
 const App = createStackNavigator({
   Orders: {
     screen: Orders,
+    navigationOptions: {
+      headerTitle: <Header title="Orders" />,
+    },
   },
   Items: {
     screen: Items,
