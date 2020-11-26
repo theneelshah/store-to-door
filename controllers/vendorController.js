@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Vendor = require("../models/vendorModel");
+const User = require("../models/userModel");
 const catchAsync = require("../utils/catchAsync");
 
 exports.addItems = catchAsync(async (req, res, next) => {
@@ -84,12 +85,79 @@ exports.getVendors = catchAsync(async (req, res, next) => {
 exports.getVendor = catchAsync(async (req, res, next) => {
   const { vid } = req.params;
   const vendor = await Vendor.findById(vid);
+
   if (!vendor)
     return res
       .status(404)
       .json({ status: "Failed", message: "Not found with given ID" });
 
-  res.status(200).json({ status: "OK", message: "User Found", vendor });
+  const {
+    _id,
+    username,
+    vendorType,
+    phone,
+    email,
+    geometry,
+    items,
+    activeOrders,
+    completedOrders,
+  } = vendor;
+
+  let fullActiveOrders = [];
+  for (let i = 0; i < activeOrders.length; i += 1) {
+    const user = await User.findById(activeOrders[i].user);
+    const { timestamp, quantity, status, item } = activeOrders[i];
+    const orderId = activeOrders[i]._id;
+    fullActiveOrders.push({
+      _id: orderId,
+      timestamp,
+      status,
+      quantity,
+      item,
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        phone: user.phone,
+      },
+    });
+  }
+
+  const fullCompletedOrders = [];
+  for (let i = 0; i < completedOrders.length; i += 1) {
+    const user = await User.findById(completedOrders[i].user);
+    const { timestamp, quantity, status, item } = activeOrders[i];
+    const orderId = activeOrders[i]._id;
+    fullCompletedOrders.push({
+      _id: orderId,
+      timestamp,
+      status,
+      quantity,
+      item,
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        phone: user.phone,
+      },
+    });
+  }
+
+  res.status(200).json({
+    status: "OK",
+    message: "User Found",
+    vendor: {
+      _id,
+      username,
+      phone,
+      email,
+      vendorType,
+      activeOrders: fullActiveOrders,
+      completedOrders: fullCompletedOrders,
+      geometry,
+      items,
+    },
+  });
 });
 
 exports.updateItems = catchAsync(async (req, res, next) => {
