@@ -106,6 +106,15 @@ exports.getVendor = catchAsync(async (req, res, next) => {
   let fullActiveOrders = [];
   for (let i = 0; i < activeOrders.length; i += 1) {
     const user = await User.findById(activeOrders[i].user);
+    const userActiveOrders = user.activeOrders;
+
+    let userGivenOrder;
+
+    for (let k = 0; k < userActiveOrders.length; k += 1) {
+      if (`${userActiveOrders[i].item}` === `${activeOrders[i].item}`)
+        userGivenOrder = userActiveOrders[i]._id;
+    }
+
     const { timestamp, quantity, status, item } = activeOrders[i];
     const orderId = activeOrders[i]._id;
     fullActiveOrders.push({
@@ -119,6 +128,7 @@ exports.getVendor = catchAsync(async (req, res, next) => {
         username: user.username,
         email: user.email,
         phone: user.phone,
+        activeOrderId: userGivenOrder,
       },
     });
   }
