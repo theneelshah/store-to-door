@@ -33,6 +33,13 @@ const userSchema = mongoose.Schema({
       message: "Passwords are different",
     },
   },
+  phone: {
+    type: Number,
+    required: true,
+    unique: true,
+    minlength: [10, "phone number should be 10 characters long"],
+    maxlength: [10, "phone number should be 10 characters long"],
+  },
   activeOrders: [orderSchema],
   completedOrders: [orderSchema],
   passwordChanged: Date,

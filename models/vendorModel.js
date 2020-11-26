@@ -43,6 +43,13 @@ const vendorSchema = mongoose.Schema({
       message: "Possible values for vendor type: grocery, tiffin, hawker",
     },
   },
+  phone: {
+    type: Number,
+    required: true,
+    unique: true,
+    minlength: [10, "phone number should be 10 characters long"],
+    maxlength: [10, "phone number should be 10 characters long"],
+  },
   geometry: geoSchema,
   items: [itemSchema],
   activeOrders: [orderSchema],

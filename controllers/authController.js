@@ -17,18 +17,25 @@ const signToken = (id) => {
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
-  const { username, email, password, confirmPassword } = req.body;
-  if ((!username, !email, !password, !confirmPassword)) {
+  const { username, email, password, confirmPassword, phone } = req.body;
+  if ((!username, !email, !password, !confirmPassword, !phone)) {
     return res
       .status(400)
       .json({ status: "Failed", message: "Please enter all the fields" });
   }
+
+  if (phone.length < 10 || phone.length > 10)
+    return res.status(400).json({
+      status: "Failed",
+      message: "Phone number should be 10 characters long",
+    });
 
   const newUser = await User.create({
     username,
     email,
     password,
     confirmPassword,
+    phone,
   });
   const token = signToken(newUser._id);
   res.status(200).json({
@@ -39,6 +46,7 @@ exports.signup = catchAsync(async (req, res, next) => {
       _id: newUser._id,
       username: newUser.username,
       email: newUser.email,
+      phone: newUser.phone,
     },
   });
 });
@@ -112,14 +120,21 @@ exports.signupVendor = catchAsync(async (req, res, next) => {
     email,
     confirmPassword,
     vendorType,
+    phone,
     lat,
     lng,
   } = req.body;
-  if ((!username, !email, !password, !confirmPassword, !vendorType)) {
+  if ((!username, !email, !password, !confirmPassword, !vendorType, !phone)) {
     return res
       .status(400)
       .json({ status: "Failed", message: "Please enter all the fields" });
   }
+
+  if (phone.length < 10 || phone.length > 10)
+    return res.status(400).json({
+      status: "Failed",
+      message: "Phone number should be 10 characters long",
+    });
 
   const newVendor = await Vendor.create({
     username,
@@ -127,6 +142,7 @@ exports.signupVendor = catchAsync(async (req, res, next) => {
     password,
     confirmPassword,
     vendorType,
+    phone,
     geometry: { type: "Point", coordinates: [lat, lng] },
   });
 
