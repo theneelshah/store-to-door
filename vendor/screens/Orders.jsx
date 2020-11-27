@@ -6,11 +6,13 @@ import {
   Image,
   StyleSheet,
   Text,
+  ToastAndroid,
   TouchableOpacity,
   View,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { logout } from "../util/auth";
 
 class ActiveOrder extends Component {
   state = {
@@ -23,9 +25,10 @@ class ActiveOrder extends Component {
     const itemId = active.item;
     const { status } = active;
     const currentItem = items.find((el) => el._id === itemId);
-    this.setState({ currentItem });
     const { user } = active;
+
     this.setState({
+      currentItem,
       user: {
         email: user.email,
         username: user.username,
@@ -84,7 +87,7 @@ class ActiveOrder extends Component {
     }
   };
 
-  onReject = () => {
+  onReject = async () => {
     const { active, changeReject } = this.props;
     const { user, item } = active;
     const vendorActiveId = active._id;
@@ -93,7 +96,45 @@ class ActiveOrder extends Component {
     const { email, username } = user;
     const userActiveId = user.activeOrderId;
 
-    changeReject(vendorActiveId);
+    const rejectOrder = {
+      vendorActiveId,
+      itemId,
+      user: {
+        _id: userId,
+        email,
+        username,
+        userActiveId,
+      },
+    };
+    // changeReject(vendorActiveId);
+
+    try {
+      const token = await AsyncStorage.getItem("token");
+      const response = await axios.put(
+        `https://store-to-door13.herokuapp.com/vendor/orders/reject`,
+        {
+          itemId: rejectOrder.itemId,
+          user: rejectOrder.user,
+          vendorActiveId: rejectOrder.vendorActiveId,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `bearer: ${token}`,
+          },
+        }
+      );
+      const { data, status } = response;
+      const { vendor, user } = data;
+
+      ToastAndroid.show(data.message, ToastAndroid.SHORT);
+      const { activeOrders, completedOrders } = vendor;
+      const { changeReject } = this.props;
+      changeReject(vendorActiveId);
+    } catch (error) {
+      console.log(error.message);
+      console.log(error.response);
+    }
   };
 
   render() {
@@ -101,6 +142,7 @@ class ActiveOrder extends Component {
     const { currentItem } = this.state;
     const { images, name, price } = currentItem;
     const { quantity, status } = active;
+
     return (
       <View style={styles.singleItem} key={active.item}>
         {status === "Accepted" && (
@@ -122,12 +164,7 @@ class ActiveOrder extends Component {
 
         {status === "Placed" && (
           <View style={styles.button}>
-            <TouchableOpacity
-              style={styles.accept}
-              onPress={() => {
-                console.log("Accept");
-              }}
-            >
+            <TouchableOpacity style={styles.accept} onPress={this.onAccept}>
               <Text>Accept</Text>
             </TouchableOpacity>
 
@@ -150,6 +187,8 @@ class Rejected extends Component {
   componentDidMount() {
     const { item } = this.props.item;
     const { items } = this.props;
+    // console.log(item);
+    // console.log("------------");
     const currentItem = items.find((el) => el._id === item.item);
     const { user } = item;
     this.setState({
@@ -243,16 +282,22 @@ export default class Orders extends Component {
     this.setState({ activeOrders });
   };
 
-  changeReject = (vendorRejectId) => {
+  changeReject = async (vendorRejectId) => {
     let { activeOrders, completedOrders } = this.state;
 
     for (let i = 0; i < activeOrders.length; i += 1) {
       if (`${activeOrders[i]._id}` === `${vendorRejectId}`) {
         const res = activeOrders.splice(i, 1);
+        res[0].status = "Rejected";
         completedOrders.push(res[0]);
       }
     }
     this.setState({ activeOrders, completedOrders });
+  };
+
+  logout = async () => {
+    const loggedOut = await logout();
+    this.props.navigation.navigate("Auth");
   };
 
   render() {
@@ -264,12 +309,13 @@ export default class Orders extends Component {
       username,
       vendorType,
     } = this.state;
-    console.log(completedOrders);
     return (
       <SafeAreaView>
         <ScrollView>
           <Text style={styles.heading}>Welcome back {username}</Text>
-
+          <TouchableOpacity style={styles.logout} onPress={this.logout}>
+            <Text>Logout</Text>
+          </TouchableOpacity>
           {activeOrders.length > 0 && (
             <View>
               <Text>Active Orders:</Text>
@@ -308,6 +354,10 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 25,
     textAlign: "center",
+  },
+  logout: {
+    padding: 10,
+    backgroundColor: "gray",
   },
   singleItem: {
     backgroundColor: "#dfe2ff",

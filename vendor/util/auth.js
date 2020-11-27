@@ -70,3 +70,11 @@ exports.login = async (email, password) => {
     console.log(error);
   }
 };
+
+exports.logout = async () => {
+  await AsyncStorage.removeItem("token");
+  await AsyncStorage.removeItem("id");
+  await AsyncStorage.removeItem("username");
+  await AsyncStorage.removeItem("email");
+  await AsyncStorage.removeItem("type");
+};
