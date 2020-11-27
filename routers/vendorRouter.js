@@ -14,6 +14,7 @@ const {
   getItems,
   getOrders,
   changeStatus,
+  changeReject,
 } = require("../controllers/vendorController");
 
 const vendorRouter = express.Router();
@@ -25,6 +26,8 @@ vendorRouter
   .route("/orders")
   .get(protectVendor, getOrders)
   .put(protectVendor, changeStatus);
+
+vendorRouter.route("/orders/reject").put(protectVendor, changeReject);
 
 vendorRouter.route("/").get(getVendors);
 vendorRouter.route("/:vid").put(protectVendor, addItems).get(getVendor);
