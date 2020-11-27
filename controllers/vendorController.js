@@ -136,8 +136,8 @@ exports.getVendor = catchAsync(async (req, res, next) => {
   const fullCompletedOrders = [];
   for (let i = 0; i < completedOrders.length; i += 1) {
     const user = await User.findById(completedOrders[i].user);
-    const { timestamp, quantity, status, item } = activeOrders[i];
-    const orderId = activeOrders[i]._id;
+    const { timestamp, quantity, status, item } = completedOrders[i];
+    const orderId = completedOrders[i]._id;
     fullCompletedOrders.push({
       _id: orderId,
       timestamp,
