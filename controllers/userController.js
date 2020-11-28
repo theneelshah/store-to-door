@@ -137,11 +137,11 @@ exports.getOrders = catchAsync(async (req, res, next) => {
     });
   }
 
-  if (activeOrders.length === 0)
-    return res.status(404).json({
-      status: "Failed",
-      message: "There are no active orders currently",
-    });
+  // if (activeOrders.length === 0)
+  //   return res.status(404).json({
+  //     status: "Failed",
+  //     message: "There are no active orders currently",
+  //   });
   res.status(200).json({
     status: "OK",
     message: "Active Orders",
