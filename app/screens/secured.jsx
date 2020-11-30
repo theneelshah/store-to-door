@@ -119,6 +119,7 @@ export default class Secured extends Component {
     } = this.state;
 
     const { tiffin, hawker, grocery, totalVendors, vendors } = vendor;
+
     return (
       <SafeAreaView>
         <ScrollView>
@@ -137,11 +138,27 @@ export default class Secured extends Component {
               <Text style={styles.subHeading}>Grocery Services</Text>
               <FlatList
                 data={grocery}
-                renderItem={(item) => (
-                  <TouchableOpacity style={styles.item}>
-                    <Text>{item.username}</Text>
-                  </TouchableOpacity>
-                )}
+                renderItem={({ item }) => {
+                  console.log(item);
+                  return (
+                    <View>
+                      <TouchableOpacity
+                        style={styles.item}
+                        onPress={() => {
+                          this.openVendor(item);
+                        }}
+                      >
+                        <Image
+                          style={styles.img}
+                          source={{
+                            uri: "https://reactnative.dev/img/tiny_logo.png",
+                          }}
+                        />
+                        <Text style={styles.itemText}>{item.username}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  );
+                }}
                 keyExtractor={(item) => item._id}
               />
             </View>
@@ -154,10 +171,23 @@ export default class Secured extends Component {
               <Text style={styles.subHeading}>Hawkers Services</Text>
               <FlatList
                 data={hawker}
-                renderItem={(item) => (
-                  <TouchableOpacity style={styles.item}>
-                    <Text>{item.username}</Text>
-                  </TouchableOpacity>
+                renderItem={({ item }) => (
+                  <View>
+                    <TouchableOpacity
+                      style={styles.item}
+                      onPress={() => {
+                        this.openVendor(item);
+                      }}
+                    >
+                      <Image
+                        style={styles.img}
+                        source={{
+                          uri: "https://reactnative.dev/img/tiny_logo.png",
+                        }}
+                      />
+                      <Text style={styles.itemText}>{item.username}</Text>
+                    </TouchableOpacity>
+                  </View>
                 )}
                 keyExtractor={(item) => item._id}
               />
@@ -185,7 +215,6 @@ export default class Secured extends Component {
                           uri: "https://reactnative.dev/img/tiny_logo.png",
                         }}
                       />
-
                       <Text style={styles.itemText}>{item.username}</Text>
                     </TouchableOpacity>
                   </View>

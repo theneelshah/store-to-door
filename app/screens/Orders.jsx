@@ -15,7 +15,7 @@ import { addFood, deleteFood } from "../actions/food";
 const Item = (props) => {
   const { item } = props;
   const { name, price } = item.detail;
-
+  console.log(item);
   return (
     <View style={styles.item}>
       <Image
@@ -26,9 +26,6 @@ const Item = (props) => {
       />
       <Text>{name}</Text>
       <Text>₹{price}</Text>
-      {/* <TouchableOpacity style={styles.removeBtn}>
-        <Text style={{ color: "white" }}>Remove Item from cart</Text>
-      </TouchableOpacity> */}
     </View>
   );
 };
@@ -37,13 +34,14 @@ class Orders extends Component {
   state = {
     activeOrders: [],
     completedOrders: [],
+    rejected: 0,
     price: 0,
   };
 
   async componentDidMount() {
     const { addActive, active } = this.props;
+    const token = await AsyncStorage.getItem("token");
     try {
-      const token = await AsyncStorage.getItem("token");
       const response = await axios.get(
         `https://store-to-door13.herokuapp.com/user/order`,
         {
@@ -54,6 +52,7 @@ class Orders extends Component {
         }
       );
       // const { user } = response.data;
+      // console.log(response.data);
       const { activeOrders, completedOrders } = response.data;
       this.setState({ activeOrders, completedOrders }, () => {
         const { activeOrders } = this.state;
@@ -70,19 +69,26 @@ class Orders extends Component {
           }
           if (!present) addActive(activeOrders[i]);
         }
-
-        this.setState({ price });
+        // console.log(completedOrders.length);
+        let rejected = 0;
+        for (let i = 0; i < completedOrders.length; i += 1) {
+          if (completedOrders[i].status === "rejected") {
+            rejected += 1;
+          }
+        }
+        this.setState({ price, rejected });
       });
     } catch (error) {
-      console.log(error);
+      console.log(error.response.data);
     }
   }
 
   render() {
-    const { activeOrders, completedOrders, price } = this.state;
+    const { activeOrders, completedOrders, price, rejected } = this.state;
     const { active } = this.props;
     // console.log(active);
-    // console.log(activeOrders);
+    // console.log(completedOrders);
+    // console.log(rejected);
     return (
       <View>
         {activeOrders.length >= 1 && (
@@ -90,13 +96,19 @@ class Orders extends Component {
             <Text>Active Orders</Text>
             <Text>Total price to pay: {price}</Text>
             <FlatList
-              data={active}
+              data={activeOrders}
               style={styles.list}
               renderItem={({ item }) => {
                 return <Item item={item} key={item.id} />;
               }}
               keyExtractor={(item) => item._id}
             />
+          </View>
+        )}
+        {completedOrders.length >= 1 && (
+          <View>
+            <Text>Completed {completedOrders.length} orders</Text>
+            {rejected > 0 && <Text>Rejected: {rejected}</Text>}
           </View>
         )}
       </View>
@@ -131,5 +143,10 @@ const styles = StyleSheet.create({
   removeBtn: {
     backgroundColor: "#dfe2ff",
     padding: 10,
+  },
+  item: {
+    marginVertical: 10,
+    padding: 10,
+    backgroundColor: "#dfe2ff",
   },
 });

@@ -14,12 +14,12 @@ export default class HomePage extends React.Component {
     if (type === "customer") this.props.navigation.navigate("secured");
   }
 
-  onUserPress = () => {
+  onLoginPress = () => {
     console.log("Pressed");
     this.props.navigation.navigate("UserLogin");
   };
-  onServitorPress = () => {
-    this.props.navigation.navigate("ServitorLogin");
+  onSignupPress = () => {
+    this.props.navigation.navigate("Signup");
   };
   render() {
     return (
@@ -32,16 +32,19 @@ export default class HomePage extends React.Component {
           <View style={styles.buttons}>
             <TouchableOpacity
               style={styles.pButton}
-              onPress={this.onServitorPress}
+              onPress={this.onSignupPress}
             >
               <Text>
-                <Text style={{ color: "#ac48ee" }}>Servitor</Text>
+                <Text style={{ color: "#ac48ee" }}>Signup</Text>
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.pButton} onPress={this.onUserPress}>
+            <TouchableOpacity
+              style={styles.pButton}
+              onPress={this.onLoginPress}
+            >
               <Text>
-                <Text style={{ color: "#ac48ee" }}>User</Text>
+                <Text style={{ color: "#ac48ee" }}>Login</Text>
               </Text>
             </TouchableOpacity>
           </View>

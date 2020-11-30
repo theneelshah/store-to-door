@@ -1,6 +1,29 @@
 import axios from "axios";
 import { AsyncStorage } from "react-native";
 
+exports.signup = async (username, email, password, confirmPassword, phone) => {
+  let status, data;
+
+  try {
+    const response = await axios.post(
+      "https://store-to-door13.herokuapp.com/user/signup",
+      {
+        username,
+        email,
+        password,
+        confirmPassword,
+        phone,
+      }
+    );
+    data = response.data;
+    status = response.status;
+    return { data, status };
+  } catch (error) {
+    const { data, status } = error.response;
+    return { data, status };
+  }
+};
+
 const loginUser = async (email, password) => {
   console.log(email);
   let status, data;

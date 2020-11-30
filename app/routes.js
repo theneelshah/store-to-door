@@ -2,7 +2,7 @@ import React from "react";
 import { createAppContainer, createSwitchNavigator } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import Header from "./components/header";
-import ServitorLoginPage from "./screens/Auth/ServitorLoginPage";
+import Signup from "./screens/Auth/Signup";
 import UserLoginPage from "./screens/Auth/UserLoginPage";
 import Cart from "./screens/Cart";
 import HomePage from "./screens/HomePage";
@@ -18,8 +18,8 @@ const Auth = createStackNavigator({
     screen: UserLoginPage,
   },
 
-  ServitorLogin: {
-    screen: ServitorLoginPage,
+  Signup: {
+    screen: Signup,
   },
 });
 

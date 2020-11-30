@@ -9,7 +9,15 @@ export default class Input extends Component {
   };
 
   render() {
-    const { type, placeholder, value, maxLength, required, error } = this.props;
+    const {
+      type,
+      placeholder,
+      value,
+      maxLength,
+      required,
+      error,
+      disabled,
+    } = this.props;
     return (
       <View style={[styles.input, error ? styles.error : {}]}>
         <View style={styles.icon}>
@@ -20,7 +28,7 @@ export default class Input extends Component {
           ) : type === "visible-password" ? (
             <AntDesign name="lock1" size={24} color="black" />
           ) : (
-            {}
+            <Feather name="file-text" size={24} color="black" />
           )}
         </View>
 
@@ -28,15 +36,22 @@ export default class Input extends Component {
           {required ? <Text style={styles.req}>*</Text> : ""}
 
           <TextInput
+            editable={disabled ? false : true}
             style={styles.inputBox}
             placeholder={placeholder}
-            keyboardType={type === "visible-password" ? "default" : type}
+            keyboardType={
+              type === "visible-password" || type === "default"
+                ? "default"
+                : type
+            }
             secureTextEntry={type === "visible-password" ? true : false}
             value={value}
             onChangeText={this.onChangeText}
             maxLength={maxLength ? maxLength : 40}
             autoCapitalize={
-              type === "email-address" || type === "visible-password"
+              type === "email-address" ||
+              type === "visible-password" ||
+              type === "default"
                 ? "none"
                 : "words"
             }
